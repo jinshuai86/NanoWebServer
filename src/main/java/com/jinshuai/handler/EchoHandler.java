@@ -29,7 +29,7 @@ public class EchoHandler implements HttpHandler {
         "</head>\n" +
         "<body>\n" +
         "<h1>Welcome to JS WebServer!</h1>\n" +
-        "<p>If you see this page, the lc webserver is successfully installed and\n" +
+        "<p>If you see this page, the JS WebServer is successfully installed and\n" +
         "    working. </p>\n" +
         "\n" +
         "<p>For online documentation and support please refer to\n" +

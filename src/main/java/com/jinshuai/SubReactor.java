@@ -1,13 +1,12 @@
 package com.jinshuai;
 
-import com.jinshuai.http.HttpServerSession;
+import com.jinshuai.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author: JS
@@ -29,7 +28,7 @@ class SubReactor extends EventLoop {
             SocketChannel socketChannel = (SocketChannel) key.channel();
             try {
                 log.info("receive msg from client {}", socketChannel.getRemoteAddress());
-                HttpServerSession serverSession = (HttpServerSession) key.attachment();
+                HttpSession serverSession = (HttpSession) key.attachment();
                 int count = socketChannel.read(inBuffer);
                 if (count > 0) {
                     inBuffer.flip();

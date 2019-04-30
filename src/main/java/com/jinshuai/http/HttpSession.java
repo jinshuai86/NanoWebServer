@@ -15,7 +15,7 @@ import java.util.*;
  * @description: as a session for client and server
  */
 @Slf4j
-public class HttpServerSession {
+public class HttpSession {
 
     private static final Set<String> VALID_METHOD = new HashSet<>();
 
@@ -43,7 +43,7 @@ public class HttpServerSession {
 
     private HttpHandler httpHandler;
 
-    public HttpServerSession(SocketChannel socketChannel, HttpHandler httpHandler) {
+    public HttpSession(SocketChannel socketChannel, HttpHandler httpHandler) {
         this.socketChannel = socketChannel;
         this.httpHandler = httpHandler;
     }

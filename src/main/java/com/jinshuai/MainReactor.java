@@ -1,7 +1,7 @@
 package com.jinshuai;
 
 import com.jinshuai.http.HttpHandler;
-import com.jinshuai.http.HttpServerSession;
+import com.jinshuai.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ class MainReactor extends EventLoop {
                 SocketChannel socketChannel = acceptSocketChannel.accept();
                 socketChannel.configureBlocking(false);
                 // current session
-                HttpServerSession serverSession = new HttpServerSession(socketChannel, httpHandler);
+                HttpSession serverSession = new HttpSession(socketChannel, httpHandler);
                 subReactors[subReactorIndex++ % subReactors.length].register(socketChannel, SelectionKey.OP_READ, serverSession);
                 log.info("a new connect from [{}]", socketChannel.getRemoteAddress());
             } catch (IOException e) {
