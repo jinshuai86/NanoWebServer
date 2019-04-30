@@ -46,7 +46,7 @@ public abstract class EventLoop extends Thread {
         }
     }
 
-    void register(AbstractSelectableChannel channel, int op) {
+    void register(AbstractSelectableChannel channel, int op, Object attachment) {
         try {
             // SubReactor调用select已经阻塞，需要唤醒，否则无法注册。
             selector.wakeup();
@@ -55,7 +55,7 @@ public abstract class EventLoop extends Thread {
                 2. 由于SubReactor调用select已经阻塞，并且已经提前获取了SelectionKeys集合对应的锁，导致MainReactor永久阻塞，注册不上。
                 3. 所以需要设置EventLoop的select(100)的超时时间。
              */
-            channel.register(selector, op);
+            channel.register(selector, op, attachment);
         } catch (ClosedChannelException e) {
             log.error("attempt to register a closed channel", e);
         }

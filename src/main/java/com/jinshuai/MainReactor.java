@@ -1,5 +1,7 @@
 package com.jinshuai;
 
+import com.jinshuai.http.HttpHandler;
+import com.jinshuai.http.HttpServerSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -19,10 +21,13 @@ class MainReactor extends EventLoop {
 
     private SubReactor[] subReactors;
 
-    MainReactor(ServerSocketChannel serverSocketChannel, SubReactor[] subReactors) throws IOException {
+    private HttpHandler httpHandler;
+
+    MainReactor(ServerSocketChannel serverSocketChannel, SubReactor[] subReactors, HttpHandler httpHandler) throws IOException {
         super("MainReactor");
         this.subReactors = subReactors;
-        register(serverSocketChannel, SelectionKey.OP_ACCEPT);
+        this.httpHandler = httpHandler;
+        register(serverSocketChannel, SelectionKey.OP_ACCEPT, null);
     }
 
     @Override
@@ -32,8 +37,9 @@ class MainReactor extends EventLoop {
                 ServerSocketChannel acceptSocketChannel = (ServerSocketChannel) key.channel();
                 SocketChannel socketChannel = acceptSocketChannel.accept();
                 socketChannel.configureBlocking(false);
-//                subReactors[0].register(socketChannel, SelectionKey.OP_READ);
-                subReactors[subReactorIndex++ % subReactors.length].register(socketChannel, SelectionKey.OP_READ);
+                // current session
+                HttpServerSession serverSession = new HttpServerSession(socketChannel, httpHandler);
+                subReactors[subReactorIndex++ % subReactors.length].register(socketChannel, SelectionKey.OP_READ, serverSession);
                 log.info("a new connect from [{}]", socketChannel.getRemoteAddress());
             } catch (IOException e) {
                 log.error("process key failed", e);

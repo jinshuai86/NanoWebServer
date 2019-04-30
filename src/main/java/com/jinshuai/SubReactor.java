@@ -1,5 +1,6 @@
 package com.jinshuai;
 
+import com.jinshuai.http.HttpServerSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -14,9 +15,9 @@ import java.nio.charset.StandardCharsets;
  * @description:
  */
 @Slf4j
-public class SubReactor extends EventLoop {
+class SubReactor extends EventLoop {
 
-    public ByteBuffer inBuffer = ByteBuffer.allocate(1024);
+    private ByteBuffer inBuffer = ByteBuffer.allocate(1024);
 
     SubReactor(int index) throws IOException {
         super("SubReactor-" + index);
@@ -27,14 +28,13 @@ public class SubReactor extends EventLoop {
         if (key.isReadable()) {
             SocketChannel socketChannel = (SocketChannel) key.channel();
             try {
+                log.info("receive msg from client {}", socketChannel.getRemoteAddress());
+                HttpServerSession serverSession = (HttpServerSession) key.attachment();
                 int count = socketChannel.read(inBuffer);
                 if (count > 0) {
-                    String msg = new String(inBuffer.array());
-                    log.info("receive msg \" {} \" from client {}", msg, socketChannel.getRemoteAddress());
+                    inBuffer.flip();
+                    serverSession.processBuffer(inBuffer);
                     inBuffer.clear();
-                    // response
-                    ByteBuffer outBuffer = ByteBuffer.wrap(("server: hello ").getBytes(StandardCharsets.UTF_8));
-                    socketChannel.write(outBuffer);
                 }
             } catch (IOException e) {
                 log.error("subReactor read buffer exception", e);

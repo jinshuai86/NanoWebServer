@@ -1,5 +1,6 @@
 package com.jinshuai;
 
+import com.jinshuai.handler.EchoHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -26,12 +27,12 @@ public class HttpServer {
 
     private SubReactor[] subReactors = new SubReactor[PROCESSORS * 2];
 
-    public void start() throws IOException {
+    private void start() throws IOException {
         // 启动MainReactor
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.configureBlocking(false);
         serverSocketChannel.bind(new InetSocketAddress(port));
-        MainReactor mainReactor = new MainReactor(serverSocketChannel, subReactors);
+        MainReactor mainReactor = new MainReactor(serverSocketChannel, subReactors, new EchoHandler());
         mainReactor.start();
         // 启动SubReactor
         for (int i = 0; i < subReactors.length; i++) {
@@ -41,10 +42,9 @@ public class HttpServer {
         log.info("server start on port: {}", port);
     }
 
-    public void stop() {
+    private void stop() {
 
     }
-
 
     HttpServer(int port) {
         if (port < 1 || port > 65535) {
