@@ -20,15 +20,13 @@ public abstract class EventLoop extends Thread {
 
     private final Selector selector = Selector.open();
 
-    private volatile boolean running = true;
-
     EventLoop(String name) throws IOException {
         super(name);
     }
 
     @Override
     public void run() {
-        while (running) {
+        while (HttpServer.running) {
             try {
                 int count = selector.select(100);
                 if (count > 0) {

@@ -21,6 +21,8 @@ import java.util.Set;
 @Slf4j
 public class HttpServer {
 
+    public static volatile boolean running = false;
+
     private int port = 8080;
 
     private final int PROCESSORS = Runtime.getRuntime().availableProcessors();
@@ -28,6 +30,7 @@ public class HttpServer {
     private SubReactor[] subReactors = new SubReactor[PROCESSORS * 2];
 
     private void start() throws IOException {
+        running = true;
         // 启动MainReactor
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.configureBlocking(false);
@@ -43,7 +46,7 @@ public class HttpServer {
     }
 
     private void stop() {
-
+        running = false;
     }
 
     HttpServer(int port) {
@@ -53,6 +56,8 @@ public class HttpServer {
         }
         this.port = port;
     }
+
+    HttpServer(){}
 
     public static void main(String[] args) throws IOException {
         new HttpServer(12345).start();
