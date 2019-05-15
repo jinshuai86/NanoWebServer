@@ -27,6 +27,8 @@ public class HttpSession {
 
     private Map<String, List<String>> headers = new HashMap<>();
 
+    private byte[] buf = new byte[2048];
+
     private int contentLength = -1;
 
     private byte[] body;
@@ -49,7 +51,8 @@ public class HttpSession {
     }
 
     public void processBuffer(ByteBuffer inBuffer) throws IOException {
-        byte[] buf = inBuffer.array();
+//        byte[] buf = inBuffer.array();
+        inBuffer.get(buf, 0, inBuffer.limit());
         ByteArrayReader reader = new ByteArrayReader(buf);
         /*
         处理方法、路径、协议

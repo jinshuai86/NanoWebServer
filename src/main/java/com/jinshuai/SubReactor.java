@@ -16,7 +16,7 @@ import java.nio.channels.SocketChannel;
 @Slf4j
 class SubReactor extends EventLoop {
 
-    private ByteBuffer inBuffer = ByteBuffer.allocate(1024);
+    private ByteBuffer inBuffer = ByteBuffer.allocateDirect(1024);
 
     SubReactor(int index) throws IOException {
         super("SubReactor-" + index);
