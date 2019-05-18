@@ -29,7 +29,7 @@ public class HttpServer {
 
     private SubReactor[] subReactors = new SubReactor[PROCESSORS * 2];
 
-    private void start() throws IOException {
+    public void start() throws IOException {
         running = true;
         // 启动MainReactor
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
@@ -45,7 +45,7 @@ public class HttpServer {
         log.info("server start on port: {}", port);
     }
 
-    private void stop() {
+    public void stop() {
         running = false;
     }
 

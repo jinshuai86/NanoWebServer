@@ -3,6 +3,7 @@ package com.jinshuai;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -41,5 +42,13 @@ public class NanoHttpServerTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testServer() throws IOException, InterruptedException {
+        HttpServer server = new HttpServer(12345);
+        server.start();
+        Thread.sleep(3000);
+        server.stop();
     }
 }

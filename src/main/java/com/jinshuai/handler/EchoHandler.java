@@ -6,6 +6,7 @@ import com.jinshuai.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,21 +20,15 @@ import java.nio.file.Paths;
 @Slf4j
 public class EchoHandler implements HttpHandler {
 
-    private static final String BASE_PATH = "src/main/resources";
-
-    private final String INDEX_PATH = "/index.html";
-
-    private final String NOT_FOUND = "/404.html";
-
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
         StringBuilder body = new StringBuilder();
-        String path = httpRequest.getPath();
+        String path = httpRequest.getPath().toLowerCase();
         path = "/".equals(path) ? INDEX_PATH : path;
 
         Path staticFilePath = Paths.get(BASE_PATH + path);
         try {
-            if (Files.exists(staticFilePath)) {
+            if (Files.exists(staticFilePath) && !Files.isDirectory(staticFilePath)) {
                 Files.readAllLines(staticFilePath).forEach(body::append);
             } else {
                 staticFilePath = Paths.get(BASE_PATH + NOT_FOUND);
@@ -47,7 +42,7 @@ public class EchoHandler implements HttpHandler {
     }
 
     public static void main(String[] args) throws IOException {
-        Path staticFilePath = Paths.get("src/main/resources/index.html");
+        Path staticFilePath = Paths.get(EchoHandler.class.getResource("/").toString().substring(6) + "index.html");
         Files.readAllLines(staticFilePath).forEach(System.out::println);
     }
 
