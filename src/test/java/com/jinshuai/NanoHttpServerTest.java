@@ -47,8 +47,5 @@ public class NanoHttpServerTest {
     @Test
     public void testServer() throws IOException, InterruptedException {
         HttpServer server = new HttpServer(12345);
-        server.start();
-        Thread.sleep(3000);
-        server.stop();
     }
 }
