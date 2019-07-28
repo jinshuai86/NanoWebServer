@@ -22,14 +22,19 @@ public class EchoHandler implements HttpHandler {
 
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
+        String body;
+        int responseCode = 200;
         String path = httpRequest.getPath().toLowerCase();
         path = "/".equals(path) ? INDEX_PATH : path;
-
-        String body = PathContent.pathContent.containsKey(path) ? PathContent.pathContent.get(path) : PathContent.pathContent.get(NOT_FOUND);
-
+        if (PathContent.pathContent.containsKey(path)) {
+            body = PathContent.pathContent.get(path);
+        } else {
+            body = PathContent.pathContent.get(NOT_FOUND);
+            responseCode = 404;
+        }
         return HttpResponse
                 .builder()
-                .responseCode(200)
+                .responseCode(responseCode)
                 .body(body.getBytes(StandardCharsets.UTF_8))
                 .build();
     }

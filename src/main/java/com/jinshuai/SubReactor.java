@@ -27,7 +27,7 @@ class SubReactor extends EventLoop {
         if (key.isReadable()) {
             SocketChannel socketChannel = (SocketChannel) key.channel();
             try {
-                log.info("receive msg from client {}", socketChannel.getRemoteAddress());
+                log.debug("receive msg from client {}", socketChannel.getRemoteAddress());
                 HttpSession serverSession = (HttpSession) key.attachment();
                 int count = socketChannel.read(inBuffer);
                 if (count > 0) {
