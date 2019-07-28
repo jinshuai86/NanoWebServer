@@ -53,6 +53,11 @@ public abstract class EventLoop extends Thread {
         }
     }
 
+    /**
+     * @param attachment session for this request
+     *
+     *
+     * */
     void register(AbstractSelectableChannel channel, int op, Object attachment) {
         try {
             regLock.lock();

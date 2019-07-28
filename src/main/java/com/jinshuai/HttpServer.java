@@ -44,9 +44,9 @@ public class HttpServer {
                 subReactors[i] = new SubReactor(i);
                 subReactors[i].start();
             }
-            log.info("server start on port: {}", port);
+            log.debug("JSServer start on port: {}", port);
         } catch (IOException ioe) {
-            log.error("启动失败", ioe);
+            log.error("failed start ", ioe);
         }
     }
 

@@ -20,14 +20,12 @@ import java.nio.file.Paths;
 @Slf4j
 public class EchoHandler implements HttpHandler {
 
-    private String body;
-
     @Override
     public HttpResponse handle(HttpRequest httpRequest) {
         String path = httpRequest.getPath().toLowerCase();
         path = "/".equals(path) ? INDEX_PATH : path;
 
-        body = PathContent.pathContent.containsKey(path) ? PathContent.pathContent.get(path) : PathContent.pathContent.get(NOT_FOUND);
+        String body = PathContent.pathContent.containsKey(path) ? PathContent.pathContent.get(path) : PathContent.pathContent.get(NOT_FOUND);
 
         return HttpResponse
                 .builder()

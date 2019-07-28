@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author: JS
@@ -17,7 +18,7 @@ import java.nio.channels.SocketChannel;
 @Slf4j
 class MainReactor extends EventLoop {
 
-    private int subReactorIndex = 0;
+    private AtomicInteger subReactorIndex = new AtomicInteger(0);
 
     private SubReactor[] subReactors;
 
@@ -36,12 +37,12 @@ class MainReactor extends EventLoop {
             try {
                 ServerSocketChannel acceptSocketChannel = (ServerSocketChannel) key.channel();
                 SocketChannel socketChannel = acceptSocketChannel.accept();
-                log.info("a new connect from [{}]", socketChannel.getRemoteAddress());
+                log.debug("a new connect from [{}]", socketChannel.getRemoteAddress());
                 socketChannel.configureBlocking(false);
                 // current session
                 HttpSession serverSession = new HttpSession(socketChannel, httpHandler);
-                subReactors[subReactorIndex++ % subReactors.length].register(socketChannel, SelectionKey.OP_READ, serverSession);
-//                log.info("a new connect from [{}]", socketChannel.getRemoteAddress()); // 当channel已经关了，会抛异常
+                subReactors[subReactorIndex.getAndAdd(1) % subReactors.length].register(socketChannel, SelectionKey.OP_READ, serverSession);
+//                log.debug("a new connect from [{}]", socketChannel.getRemoteAddress()); // 当channel已经关了，会抛异常
             } catch (IOException e) {
                 log.error("process key failed", e);
             }
