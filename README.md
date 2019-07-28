@@ -1,8 +1,7 @@
 # NanoWebServer
-基于IO多路复用的WebServer，采用多Reactor模型。
+基于NIO实现的WebServer
 
 ## Finished
-- [x] 多Reactor模型设计
 - [x] 接收请求返回响应
 - [x] 解析HTTP报文
 - [x] 处理GET静态请求
