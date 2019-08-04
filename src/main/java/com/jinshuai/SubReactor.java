@@ -30,18 +30,19 @@ class SubReactor extends EventLoop {
                 log.debug("receive msg from client {}", socketChannel.getRemoteAddress());
                 HttpSession serverSession = (HttpSession) key.attachment();
                 int count = socketChannel.read(inBuffer);
-                if (count > 0) {
+                if (count < 0) {
+                    log.debug("close the channel: {}, localaddress: {}, remoteaddress: {}", socketChannel, socketChannel.getLocalAddress(), socketChannel.getRemoteAddress());
+                    socketChannel.close();
+                } else if (count > 0) {
                     inBuffer.flip();
                     serverSession.processBuffer(inBuffer);
                     inBuffer.clear();
                 }
             } catch (IOException e) {
-                log.error("subReactor read buffer exception", e);
-            } finally {
                 try {
                     socketChannel.close();
-                } catch (IOException e) {
-                    log.error("failed to close the channel", e);
+                } catch (IOException e1) {
+                    log.error("failed to close the channel", e1);
                 }
             }
         }

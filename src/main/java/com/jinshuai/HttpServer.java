@@ -44,6 +44,9 @@ public class HttpServer {
                 subReactors[i] = new SubReactor(i);
                 subReactors[i].start();
             }
+            // 启动清理器
+            IdleCleaner idleCleaner = new IdleCleaner("idle-cleaner");
+            idleCleaner.start();
             log.debug("JSServer start on port: {}", port);
         } catch (IOException ioe) {
             log.error("failed start ", ioe);

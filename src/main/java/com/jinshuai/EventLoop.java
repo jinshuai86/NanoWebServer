@@ -1,15 +1,17 @@
 package com.jinshuai;
 
+import com.jinshuai.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import sun.nio.ch.SelectorImpl;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -20,6 +22,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Slf4j
 public abstract class EventLoop extends Thread {
+
+    public static ConcurrentLinkedQueue<WeakReference<HttpSession>> sessions = new ConcurrentLinkedQueue<>();
 
     private final Selector selector = Selector.open();
 
@@ -36,10 +40,10 @@ public abstract class EventLoop extends Thread {
                 int count = selector.select();
                 if (count > 0) {
                     Set<SelectionKey> keySets = selector.selectedKeys();
-                    Iterator<SelectionKey> iterator = keySets.iterator();
-                    while (iterator.hasNext()) {
-                        SelectionKey key = iterator.next();
-                        iterator.remove();
+                    Iterator<SelectionKey> keyIterator = keySets.iterator();
+                    while (keyIterator.hasNext()) {
+                        SelectionKey key = keyIterator.next();
+                        keyIterator.remove();
                         if (key.isValid()) {
                             process(key);
                         }
@@ -55,7 +59,6 @@ public abstract class EventLoop extends Thread {
 
     /**
      * @param attachment session for this request
-     *
      *
      * */
     void register(AbstractSelectableChannel channel, int op, Object attachment) {

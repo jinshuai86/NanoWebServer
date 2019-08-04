@@ -5,6 +5,7 @@ import com.jinshuai.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -40,9 +41,9 @@ class MainReactor extends EventLoop {
                 log.debug("a new connect from [{}]", socketChannel.getRemoteAddress());
                 socketChannel.configureBlocking(false);
                 // current session
-                HttpSession serverSession = new HttpSession(socketChannel, httpHandler);
-                subReactors[subReactorIndex.getAndAdd(1) % subReactors.length].register(socketChannel, SelectionKey.OP_READ, serverSession);
-//                log.debug("a new connect from [{}]", socketChannel.getRemoteAddress()); // 当channel已经关了，会抛异常
+                HttpSession session = new HttpSession(socketChannel, httpHandler);
+                subReactors[subReactorIndex.getAndAdd(1) % subReactors.length].register(socketChannel, SelectionKey.OP_READ, session);
+                sessions.offer(new WeakReference<>(session));
             } catch (IOException e) {
                 log.error("process key failed", e);
             }

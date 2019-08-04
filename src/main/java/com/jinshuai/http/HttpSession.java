@@ -19,6 +19,8 @@ public class HttpSession {
 
     private static final Set<String> VALID_METHOD = new HashSet<>();
 
+    private long lastActive = System.currentTimeMillis();
+
     static {
         Collections.addAll(VALID_METHOD, "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE");
     }
@@ -55,18 +57,21 @@ public class HttpSession {
         inBuffer.get(buf, 0, inBuffer.limit());
         ByteArrayReader reader = new ByteArrayReader(buf);
         /*
-        处理方法、路径、协议
-        处理请求头
-        处理请求体
+        handle METHOD、PATH、PROTOCOL
+        handle HEADERS
+        handle BODY
         */
         String line;
         headers.clear();
         if (state == State.START || state == State.HEADER) {
             while ((line = reader.nextLine()) != null) {
+                lastActive = System.currentTimeMillis();
+                log.debug("{} update last active time",  socketChannel.getRemoteAddress());
                 if (state == State.START) {
                     if (checkStart(line)) {
                         state = State.HEADER;
                     } else {
+                        log.debug("start error");
                         error();
                         return;
                     }
@@ -75,6 +80,7 @@ public class HttpSession {
                     if (line.isEmpty()) {
                         if (contentLength < 0) {
                             finish();
+                            state = State.START;
                             return;
                         } else {
                             state = State.BODY;
@@ -86,11 +92,13 @@ public class HttpSession {
                             String value = header[1].trim().toLowerCase();
                             headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
                             if ("content-length".equalsIgnoreCase(key)) {
-                                int contentLength = Integer.valueOf(value);
+                                int contentLength = Integer.parseInt(value);
                                 body = new byte[contentLength];
                             }
                         } else {
+                            log.debug("header error");
                             error();
+                            state = State.START;
                             return;
                         }
                     }
@@ -101,6 +109,7 @@ public class HttpSession {
             int pos = reader.getPosition();
             System.arraycopy(buf, pos, body, 0, body.length);
             finish();
+            state = State.START;
         }
     }
 
@@ -149,6 +158,19 @@ public class HttpSession {
         sb.append("\r\n").append(welContent);
 
         socketChannel.write(ByteBuffer.wrap(sb.toString().getBytes()));
+    }
+
+    public void checkIdle(int idleTime) {
+        if (System.currentTimeMillis() - lastActive >= idleTime * 1000) {
+            try {
+                if (socketChannel.isOpen()) {
+                    log.debug("socket timeout: {}, close the socket: {}", System.currentTimeMillis() - lastActive, socketChannel);
+                    socketChannel.close();
+                }
+            } catch (IOException e) {
+                log.error("close the channel error", e);
+            }
+        }
     }
 
 }
